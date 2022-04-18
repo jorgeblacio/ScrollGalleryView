@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
@@ -202,7 +203,7 @@ public class ScrollGalleryView extends LinearLayout {
             info.getLoader().loadThumbnail(getContext(), thumbnail, new MediaLoader.SuccessCallback() {
                 @Override
                 public void onSuccess() {
-                    thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    thumbnail.setScaleType(ImageView.ScaleType.FIT_XY);
                 }
             });
 
@@ -218,6 +219,12 @@ public class ScrollGalleryView extends LinearLayout {
      * @return
      */
     public ScrollGalleryView setCurrentItem(int i) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            for (int index = 0; index < thumbnailsContainer.getChildCount(); index++){
+                thumbnailsContainer.getChildAt(index).setBackground(ContextCompat.getDrawable(context, R.drawable.gallery_main_image));
+            }
+            thumbnailsContainer.getChildAt(i).setBackground(ContextCompat.getDrawable(context, R.drawable.gallery_main_image_orange));
+        }
         viewPager.setCurrentItem(i, false);
         return this;
     }
@@ -384,7 +391,7 @@ public class ScrollGalleryView extends LinearLayout {
 
     private ImageView addThumbnail(Bitmap image) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(thumbnailSize, thumbnailSize);
-        lp.setMargins(10, 10, 10, 10);
+        lp.setMargins(10, 0, 10, 0);
         Bitmap thumbnail = createThumbnail(image);
 
         ImageView thumbnailView = createThumbnailView(lp, thumbnail);
@@ -392,13 +399,17 @@ public class ScrollGalleryView extends LinearLayout {
         return thumbnailView;
     }
 
-    private ImageView createThumbnailView(LinearLayout.LayoutParams lp, Bitmap thumbnail) {
+    private ImageView createThumbnailView(LayoutParams lp, Bitmap thumbnail) {
         ImageView thumbnailView = new ImageView(context);
         thumbnailView.setLayoutParams(lp);
         thumbnailView.setImageBitmap(thumbnail);
         thumbnailView.setId(mListOfMedia.size() - 1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            thumbnailView.setBackground(ContextCompat.getDrawable(context, R.drawable.gallery_main_image));
+        }
         thumbnailView.setOnClickListener(thumbnailOnClickListener);
-        thumbnailView.setScaleType(ImageView.ScaleType.CENTER);
+        thumbnailView.setScaleType(ImageView.ScaleType.FIT_XY);
+        thumbnailView.setPadding(5,5,5,5);
         return thumbnailView;
     }
 
@@ -422,6 +433,13 @@ public class ScrollGalleryView extends LinearLayout {
     }
 
     private void scroll(View thumbnail) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            for (int i = 0; i < thumbnailsContainer.getChildCount(); i++){
+                thumbnailsContainer.getChildAt(i).setBackground(ContextCompat.getDrawable(context, R.drawable.gallery_main_image));
+            }
+            thumbnailsContainer.getChildAt(thumbnail.getId()).setBackground(ContextCompat.getDrawable(context, R.drawable.gallery_main_image_orange));
+        }
+
         int thumbnailCoords[] = new int[2];
         thumbnail.getLocationOnScreen(thumbnailCoords);
 
